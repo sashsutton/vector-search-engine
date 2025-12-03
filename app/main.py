@@ -1,8 +1,25 @@
 from fastapi import FastAPI
 from app.engine import VectorEngine
 from app.models import DocumentRequest, SearchRequest
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:5173", # Local React
+    "https://your-frontend-app.vercel.app",
+    "*" #
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 engine = VectorEngine()
 @app.get("/")
 def home():
@@ -10,7 +27,7 @@ def home():
 
 @app.post("/add")
 def add_document(payload: DocumentRequest):
-    engine.documents.append(payload.query)
+    engine.add_document(payload.text)
     return {"message": "Document indexed successfully", "total_docs": len(engine.documents)}
 
 @app.post("/search")
