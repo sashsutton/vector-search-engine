@@ -1,12 +1,17 @@
 from sentence_transformers import SentenceTransformer
 import numpy as np
 from typing import List
+import os
 
 
 class VectorEngine:
     def __init__(self):
-        # Loading a small model for semantic search
-        self.model = SentenceTransformer('all-MiniLM-L6-v2')
+        # Looking for the model in the cache folder created
+        cache_path = os.path.join(os.getcwd(), "model_cache")
+
+        print(f"Loading model from {cache_path}...")
+        # This will load instantly because files are already there
+        self.model = SentenceTransformer('all-MiniLM-L6-v2', cache_folder=cache_path)
 
         # Dimension of this specific model is 384
         self.vector_dim = 384
