@@ -6,6 +6,14 @@ A semantic search engine built from scratch using **Python**, **FastAPI**, and *
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green)
 ![Math](https://img.shields.io/badge/Math-Linear%20Algebra-orange)
 
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Click_Here-success)](https://vector-search-engine-frontend.vercel.app/)
+[![Frontend Code](https://img.shields.io/badge/Frontend_Repo-React-blue)](https://github.com/sashsutton/vector-search-engine-frontend/tree/main)
+
+## 🔗 Project Structure
+* **frontend**: [Go to Frontend Folder](https://github.com/sashsutton/vector-search-engine-frontend/tree/main) - React/Vite UI
+* **backend**: (This folder) - FastAPI & NumPy Logic
+* **🚀 Live Website**:[[Live website](https://vector-search-engine-frontend.vercel.app/)]
+
 ## 🚀 How It Works
 
 This project implements **Retrieval-Augmented Generation (RAG)** principles without using external vector databases (like Pinecone). It implements the vector math manually using NumPy.
