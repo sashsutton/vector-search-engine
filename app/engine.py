@@ -16,6 +16,35 @@ class VectorEngine:
         #List to hold the text content
         self.documents = []
 
+    def embed_text(self, text: str) -> np.ndarray:
+        """
+        Converts text into a vector using the AI model
+        """
+
+        vector = self.model.encode(text)
+        return vector
+
+    def add_document(self, text: str):
+
+        #Turn the text into vector
+        vector = self.embed_text(text)
+
+        #Normalise vector so that dot product = cosine similarity
+        #Math: vector_norm = v / ||v||
+
+        norm = np.linalg.norm(vector)
+        if norm == 0:
+            return
+        vector = vector / norm
+
+        #Storing the vector
+        self.vectors = np.vstack([self.vectors, vector])
+        self.documents.append(text)
+
+
+
+
+
 
 
 
