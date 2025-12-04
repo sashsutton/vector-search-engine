@@ -1,60 +1,39 @@
-# ⚡ Vector Search Engine (RAG Backend)
+# Vector Search Engine (RAG Backend)
 
-A semantic search engine built from scratch using **Python**, **FastAPI**, and **Linear Algebra**. Unlike traditional keyword search (Ctrl+F), this engine understands the *meaning* behind queries by converting text into high-dimensional vectors.
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Click_Here-success)](https://vector-search-engine-frontend.vercel.app/)
+[![Frontend Code](https://img.shields.io/badge/Frontend_Repo-React-blue)](https://github.com/sashsutton/vector-search-engine-frontend/tree/main)
+
+A high-performance semantic search engine built from scratch using **Python**, **FastAPI**, and **Linear Algebra**.
+
+It includes a full management API to **Index**, **Search**, **List**, and **Delete** vector embeddings in real-time.
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green)
 ![Math](https://img.shields.io/badge/Math-Linear%20Algebra-orange)
 
-[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Click_Here-success)](https://vector-search-engine-frontend.vercel.app/)
-[![Frontend Code](https://img.shields.io/badge/Frontend_Repo-React-blue)](https://github.com/sashsutton/vector-search-engine-frontend/tree/main)
-
-## 🔗 Project Structure
-* **frontend**: [Go to Frontend Folder](https://github.com/sashsutton/vector-search-engine-frontend/tree/main) - React/Vite UI
-* **backend**: (This folder) - FastAPI & NumPy Logic
-* **🚀 Live Website**:[[Live website](https://vector-search-engine-frontend.vercel.app/)]
-
-## 🚀 How It Works
-
-This project implements **Retrieval-Augmented Generation (RAG)** principles without using external vector databases (like Pinecone). It implements the vector math manually using NumPy.
-
-1.  **Ingestion:** User inputs text (e.g., "The sky is blue").
-2.  **Embedding:** Text is passed through a Transformer model (`all-MiniLM-L6-v2`) to generate a 384-dimensional vector.
-3.  **Indexing:** The vector is normalized and stored in an in-memory NumPy matrix.
-4.  **Retrieval:** We compute **Cosine Similarity** via Matrix Multiplication to find the best match.
+## 🚀 Key Features
+* **Semantic Search:** Uses Cosine Similarity to find meaning, not just keywords.
+* **CRUD Operations:** Full support to Add, List, and Delete documents.
+* **Vector Management:** Manages high-dimensional vectors (384-dim) in memory using NumPy.
+* **Microservice Ready:** Fully CORS-enabled for frontend integration.
 
 ## 🧠 The Math Behind It
+1. **Vector Embeddings:** $f(S) \rightarrow \mathbb{R}^{384}$ using BERT Transformers.
+2. **Normalization:** Vectors are L2-normalized so $||\vec{v}|| = 1$.
+3. **Retrieval:** Similarity is calculated via Matrix Multiplication: $\text{Scores} = \mathbf{B} \cdot \vec{A}$.
 
-### 1. Vector Embeddings
-We map every sentence $S$ to a vector $\vec{v}$ in a 384-dimensional space:
-$$f(S) \rightarrow \mathbb{R}^{384}$$
+## 🌐 API Endpoints
 
-### 2. Normalization (L2 Norm)
-To optimize search speed, we normalize all vectors to unit length. This simplifies Cosine Similarity to a pure Dot Product.
-$$\hat{v} = \frac{\vec{v}}{||\vec{v}||}$$
-
-### 3. Matrix Multiplication
-We calculate the similarity score between the Query Vector ($\vec{A}$) and Database Matrix ($\mathbf{B}$) in one operation:
-$$\text{Scores} = \mathbf{B} \cdot \vec{A}$$
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/` | Health check & document count. |
+| `POST` | `/add` | Indexes a new text string into the vector matrix. |
+| `POST` | `/search` | Converts query to vector and returns top matches. |
+| `GET` | `/documents` | Lists all indexed documents with their IDs. |
+| `DELETE` | `/delete/{id}` | Removes a specific document and its vector. |
+| `DELETE` | `/delete-all` | Clears the entire database (Text + Vectors). |
 
 ## 🛠️ Tech Stack
-
--   **Backend:** Python, FastAPI, NumPy, Sentence-Transformers
--   **Frontend:** React, Vite, CSS Modules
--   **Architecture:** REST API with CORS enabled for microservices.
-
-## 💻 Local Setup
-
-1.  **Backend:**
-    ```bash
-    cd vector-search-engine
-    pip install -r requirements.txt
-    uvicorn app.main:app --reload
-    ```
-
-2.  **Frontend:**
-    ```bash
-    cd vector-search-engine-frontend
-    npm install
-    npm run dev
-    ```
+* **FastAPI:** Async API Framework.
+* **NumPy:** Linear Algebra Engine.
+* **Sentence-Transformers:** AI Model hosting (`all-MiniLM-L6-v2`).
