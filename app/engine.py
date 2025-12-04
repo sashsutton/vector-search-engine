@@ -1,6 +1,6 @@
 from sentence_transformers import SentenceTransformer
 import numpy as np
-from typing import List
+from typing import List, Dict
 import os
 
 
@@ -9,89 +9,64 @@ class VectorEngine:
         # Looking for the model in the cache folder created
         cache_path = os.path.join(os.getcwd(), "model_cache")
 
-        print(f"Loading model from {cache_path}...")
-        # This will load instantly because files are already there
-        self.model = SentenceTransformer('all-MiniLM-L6-v2', cache_folder=cache_path)
+        # Check if cache exists to avoid errors on local without build script
+        if os.path.exists(cache_path):
+            print(f"Loading model from {cache_path}...")
+            self.model = SentenceTransformer('all-MiniLM-L6-v2', cache_folder=cache_path)
+        else:
+            print("Downloading model (No cache found)...")
+            self.model = SentenceTransformer('all-MiniLM-L6-v2')
 
-        # Dimension of this specific model is 384
         self.vector_dim = 384
-
-        # Matrix to hold N vectors: shape(N, 384)
-        self.vectors = np.empty((0,self.vector_dim), dtype=np.float32)
-
-        # List to hold the text content
+        self.vectors = np.empty((0, self.vector_dim), dtype=np.float32)
         self.documents = []
 
     def embed_text(self, text: str) -> np.ndarray:
-        """
-        Converts text into a vector using the AI model
-        """
-
-        vector = self.model.encode(text)
-        return vector
+        return self.model.encode(text)
 
     def add_document(self, text: str):
-
-        # Turn the text into vector
         vector = self.embed_text(text)
-
-        # Normalise vector so that dot product = cosine similarity
-        # Math: v_norm = v / ||v||
-
         v_norm = np.linalg.norm(vector)
-        if v_norm == 0:
-            return
-        vector = vector / v_norm
-
-        # Storing the vector
+        if v_norm > 0:
+            vector = vector / v_norm
         self.vectors = np.vstack([self.vectors, vector])
         self.documents.append(text)
 
+    def delete_document(self, index: int):
+        if 0 <= index < len(self.documents):
+            self.documents.pop(index)
+            self.vectors = np.delete(self.vectors, index, axis=0)
+            return True
+        return False
+
+    def clear_database(self):
+        self.vectors = np.empty((0, self.vector_dim), dtype=np.float32)
+        self.documents = []
+
+    def get_documents(self) -> List[Dict]:
+        return [
+            {"id": i, "text": doc}
+            for i, doc in enumerate(self.documents)
+        ]
+
     def search(self, query: str, k: int = 3) -> List[dict]:
-
-        # Vectorise the query
         query_vector = self.embed_text(query)
-
-        # Normalise the query vector
         q_norm = np.linalg.norm(query_vector)
-        if q_norm == 0:
-            return []
+        if q_norm == 0: return []
         query_vector = query_vector / q_norm
 
-        # Matrix multiplication
-        # Matrix A (Database): Shape (N_docs, 384_features)
-        # Vector B (Query):    Shape (384_features, 1)
-        # Operation:           A . B
-        #
-        # The inner dimensions (384) match and cancel out.
-        # The result is a list of N scores: Shape (N_docs,)
-        #
-        # Since vectors are normalized, Dot Product == Cosine Similarity.
-        scores = np.dot(self.vectors, query_vector)
+        if len(self.documents) == 0: return []
 
-        # Sort and get top K results
-        # argsort returns indices of sorted values (low to high), so we reverse it
+        scores = np.dot(self.vectors, query_vector)
+        k = min(k, len(scores))
+
         top_k_indices = np.argsort(scores)[-k:][::-1]
 
-        results = []
-        for idx in top_k_indices:
-            results.append({
+        return [
+            {
+                "id": int(idx),
                 "text": self.documents[idx],
                 "score": float(scores[idx])
-            })
-
-        return results
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            }
+            for idx in top_k_indices
+        ]
